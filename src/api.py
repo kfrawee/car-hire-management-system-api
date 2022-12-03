@@ -16,6 +16,8 @@ create_customer_schema = CreateCustomer()
 update_customer_schema = UpdateCustomer()
 
 CORS(app)
+
+
 @app.before_first_request
 def create_table():
     try:
