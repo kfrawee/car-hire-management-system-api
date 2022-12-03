@@ -27,3 +27,11 @@ def generate_customer_data(customer_raw: List, full=True) -> Dict:
         return dict(zip(FULL_CUSTOMER_DICT_KEYS, cus_iter))
     else:
         return dict(zip(SHORT_CUSTOMER_DICT_KEYS, cus_iter))
+
+
+def send_email():
+    pass
+
+
+def send_daily_report():
+    pass

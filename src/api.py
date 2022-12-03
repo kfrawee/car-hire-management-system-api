@@ -4,6 +4,7 @@ from http import HTTPStatus
 from uuid import uuid4
 
 from flask import jsonify, request
+from flask_cors import CORS
 from marshmallow import ValidationError
 
 from app import app
@@ -13,6 +14,8 @@ from helpers.utils import generate_customer_data
 
 create_customer_schema = CreateCustomer()
 update_customer_schema = UpdateCustomer()
+
+CORS(app)
 
 
 @app.before_first_request
@@ -225,11 +228,11 @@ def customer():
             return response
 
 
-@app.route("/customer/<string:customer_id>", methods=["PUT", "GET", "DELETE"])
+@app.route("/customer/<string:customer_id>", methods=["PATCH", "GET", "DELETE"])
 def a_customer(customer_id):
     """Handles request to /customer/<customer_id>
     Get, Update or Delete a customer"""
-    if request.method.upper() == "PUT":
+    if request.method.upper() == "PATCH":
         data = request.get_json() or {}
         try:
             # 1st Validation on body request
@@ -360,6 +363,7 @@ def a_customer(customer_id):
             response = jsonify(response_body)
             response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
             return response
+
     elif request.method.upper() == "GET":
         try:
             cursor = mysql.connection.cursor()
