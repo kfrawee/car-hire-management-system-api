@@ -1,11 +1,15 @@
-CREATE TABLE `Vehicle Category` (
+CREATE DATABASE IF NOT EXISTS Car_Hire_Management_System;
+
+USE `Car_Hire_Management_System`;
+
+CREATE TABLE `Car_Hire_Management_System`.`Vehicle Category` (
   `Category_Id` INT NOT NULL AUTO_INCREMENT,
   `CategoryName` VARCHAR(10),
   `CategoryDescription` VARCHAR(255),
   PRIMARY KEY (`Category_Id`)
 );
 
-CREATE TABLE `Vehicle` (
+CREATE TABLE `Car_Hire_Management_System`.`Vehicle` (
   `Vehicle_Id` INT NOT NULL AUTO_INCREMENT,
   `Category_Id` INT,
   `VehicleName` VARCHAR(50),
@@ -14,19 +18,19 @@ CREATE TABLE `Vehicle` (
   FOREIGN KEY (`Category_Id`) REFERENCES `Vehicle Category`(`Category_Id`)
 );
 
-CREATE TABLE `Customer` (
+CREATE TABLE `Car_Hire_Management_System`.`Customer` (
   `Customer_Id` VARCHAR(36) NOT NULL, -- uuid
   `FirstName` VARCHAR(50) NOT NULL,
   `LastName` VARCHAR(50) NOT NULL,
   `CustomerEmail` VARCHAR(50) NOT NULL,
   `CustomerPhone` VARCHAR(11) NOT NULL,
   `CustomerAddress` VARCHAR(255) NOT NULL,
-  `CreatedOn` DATETIME DEFAULT NOW(),
+  `CreatedOn` DATETIME DEFAULT NOW() NOT NULL,
   `UpdatedOn` DATETIME DEFAULT NULL,
   PRIMARY KEY (`Customer_Id`)
 );
 
-CREATE TABLE `Booking` (
+CREATE TABLE `Car_Hire_Management_System`.`Booking` (
   `Booking_Id` INT NOT NULL AUTO_INCREMENT,
   `Customer_Id ` INT,
   `Vehicle_Id` INT,
@@ -37,7 +41,7 @@ CREATE TABLE `Booking` (
   FOREIGN KEY (`Customer_Id `) REFERENCES `Customer`(`Customer_Id`)
 );
 
-CREATE TABLE `Invoice` (
+CREATE TABLE `Car_Hire_Management_System`.`Invoice` (
   `Invoice_Id` INT NOT NULL AUTO_INCREMENT,
   `Customer_Id` INT,
   `Booking_Id` INT,
