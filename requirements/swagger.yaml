@@ -1,0 +1,463 @@
+openapi: 3.0.3
+info:
+  title: Car Hire Management System API 🚗📅
+  description: A simple Python microservice implemented using Flask microframework that is connected to MySQL DB.
+  version: 2.0.0
+  contact:
+    name: kfrawee
+    url: https://github.com/kfrawee
+servers:
+  - url: http://127.0.0.1:5000
+paths:
+  /customer:
+    post:
+      summary: Create a Customer; Creates a new customer entity.
+      tags: 
+        - customer
+      operationId: createCustomer
+      requestBody:
+        description: Customer data.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - first_name
+                - last_name
+                - email
+                - phone_number
+                - address
+              properties:
+                first_name:
+                  description: Customer's First Name
+                  type: string
+                  example: Jogn
+                last_name:
+                  description: Customer's Last Name
+                  type: string
+                  example: Doe
+                email:
+                  description: Customer's Email Address
+                  type: string
+                  example: email@example.com
+                phone_number: 
+                  description: Customer's Phone Number
+                  type: string
+                  maxLength: 11
+                  example: 01012345678
+                address:
+                  description: Customer's Address
+                  type: string
+                  maxLength: 11
+                  example: 123 Main St.
+
+      responses:
+        "201":
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - customer_id
+                  - first_name
+                  - last_name
+                  - email
+                  - phone_number
+                  - address
+                  - created_on
+                  - updated_on
+                properties:
+                  customer_id:
+                    description: The Customer id
+                    type: string
+                    format: uuid
+                    example: f010e481-9111-486f-9663-f5ea97ec0fe4
+                  created_on:
+                    description: Invocation initiaion timestamp
+                    type: string
+                    format: datetime
+                    example: 2022-12-03 21:21:39.065580
+                  updated_on:
+                    description: Invocation update timestamp
+                    type: string
+                    format: datetime
+                    nullable: true
+                    example: 2022-12-03 21:21:39.065580
+                  first_name:
+                    description: Customer's First Name
+                    type: string
+                    example: Jogn
+                  last_name:
+                    description: Customer's Last Name
+                    type: string
+                    example: Doe
+                  email:
+                    description: Customer's Email Address
+                    type: string
+                    example: email@example.com
+                  phone_number: 
+                    description: Customer's Phone Number
+                    type: string
+                    maxLength: 11
+                    example: 01012345678
+                  address:
+                    description: Customer's Address
+                    type: string
+                    maxLength: 11
+                    example: 123 Main St.
+
+              examples:
+                Example:
+                  value:
+                    address: 123 Main St
+                    created_on: '2022-12-03 21:21:39.065580'
+                    customer_id: c3bf64f6-1ce2-4272-b46e-e4691e813f70
+                    email: email@example.com
+                    first_name: John
+                    last_name: Doe
+                    phone_number: '12345678910'
+                    updated_on: null
+                    
+        "400":
+          $ref: '#/components/responses/400BadRequest'
+        "500":
+          $ref: '#/components/responses/500InternalServerError'
+    
+    
+    get:
+      summary: Get customer; retrieve all stored customers.
+      tags: 
+        - customer
+      operationId: getCustomer
+      responses:
+          "200":
+            description: Retrieved successfully.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    Count:
+                      description: Count of retrieved Customers.
+                      type: integer
+                      example: 3
+                    Customers:
+                      description: Array of Customers.
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          customer_id:
+                            description: The Customer id
+                            type: string
+                            format: uuid
+                            example: f010e481-9111-486f-9663-f5ea97ec0fe4
+                          first_name:
+                            description: Customer's First Name
+                            type: string
+                            example: Jogn
+                          last_name:
+                            description: Customer's Last Name
+                            type: string
+                            example: Doe
+                          email:
+                            description: Customer's Email Address
+                            type: string
+                            example: email@example.com
+                examples:
+                  Example:
+                    value:
+                      Count: 3
+                      Customers:
+                        - customer_id: 600a9af0-0b81-4f2a-83f1-0032e751079c
+                          email: email1@example.com
+                          first_name: Max
+                          last_name: Speed
+                        - customer_id: c3bf64f6-1ce2-4272-b46e-e4691e813f70
+                          email: email2@gmail.com
+                          first_name: Sarah
+                          last_name: Lill
+                        - customer_id: f010e481-9111-486f-9663-f5ea97ec0fe4
+                          email: email3@email.com
+                          first_name: Jim
+                          last_name: Jr.
+                      
+          "404":
+            $ref: '#/components/responses/404NotFound'
+          "500":
+            $ref: '#/components/responses/500InternalServerError'
+  
+  /customer/{customer_id}:
+    get:
+      summary: Retrieve customer data by `customer_id`
+      operationId: retriveCustomer
+      tags:
+        - customer
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          description: The customer_id to retrieve his data.
+          schema:
+            type: string
+            format: ulid
+            example: 01GEJ56WD2GGG7YJVAK5B7GD4F
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  properties:
+                    Customer:
+                      type: object
+                      properties:
+                        customer_id:
+                          description: The Customer id
+                          type: string
+                          format: uuid
+                          example: f010e481-9111-486f-9663-f5ea97ec0fe4
+                        created_on:
+                          description: Invocation initiaion timestamp
+                          type: string
+                          format: datetime
+                          example: 2022-12-03 21:21:39.065580
+                        updated_on:
+                          description: Invocation update timestamp
+                          type: string
+                          format: datetime
+                          nullable: true
+                          example: 2022-12-03 21:21:39.065580
+                        first_name:
+                          description: Customer's First Name
+                          type: string
+                          example: Jogn
+                        last_name:
+                          description: Customer's Last Name
+                          type: string
+                          example: Doe
+                        email:
+                          description: Customer's Email Address
+                          type: string
+                          example: email@example.com
+                        phone_number: 
+                          description: Customer's Phone Number
+                          type: string
+                          maxLength: 11
+                          example: 01012345678
+                        address:
+                          description: Customer's Address
+                          type: string
+                          maxLength: 11
+                          example: 123 Main St.
+              examples:
+                Example:
+                  value:
+                    Customer:
+                      address: 123 Main St
+                      created_on: '2022-12-03 21:21:39.065580'
+                      customer_id: c3bf64f6-1ce2-4272-b46e-e4691e813f70
+                      email: email@example.com
+                      first_name: John
+                      last_name: Doe
+                      phone_number: '12345678910'
+                      updated_on: null
+                    
+
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        
+        "500":
+          $ref: '#/components/responses/500InternalServerError'
+    
+    delete:
+      summary: Delete customer data by `customer_id`
+      operationId: deleteCustomer
+      tags:
+        - customer
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          description: The customer_id to delete
+          schema:
+            type: string
+            format: ulid
+            example: 01GEJ56WD2GGG7YJVAK5B7GD4F
+
+      responses:
+        "204":
+          description: Deleted
+          
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        
+        "500":
+          $ref: '#/components/responses/500InternalServerError'
+    
+    patch:
+      summary: Update customer data `customer_id`
+      operationId: updateCustomer
+      tags:
+        - customer
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          description: The customer_id to update his data
+          schema:
+            type: string
+            format: ulid
+            example: 01GEJ56WD2GGG7YJVAK5B7GD4F
+      requestBody:
+        description: Customer data to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  description: Customer's First Name
+                  type: string
+                  example: Jogn
+                last_name:
+                  description: Customer's Last Name
+                  type: string
+                  example: Doe
+                email:
+                  description: Customer's Email Address
+                  type: string
+                  example: email@example.com
+                phone_number: 
+                  description: Customer's Phone Number
+                  type: string
+                  maxLength: 11
+                  example: 01012345678
+                address:
+                  description: Customer's Address
+                  type: string
+                  maxLength: 11
+                  example: 123 Main St.
+
+      responses:
+        "202":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  properties:
+                    blob_id:
+                      description: The blob id
+                      type: string
+                      format: uuid
+                      example: 01GEJ202KZ7PEBZ36X401352AE
+                    invocation_status:
+                      description: Represents current invcation status
+                      type: string
+                      enum:
+                        - ACTION_REQUIRED
+                        - IN_PROGRESS
+                        - COMPLETED
+                        - FAILED
+                      example: COMPLETED
+                    failure_reason:
+                      description: Failure reason if the invocation (lebeling) has failed
+                      type: string
+                      example: Detecting labels failed. Invalid image format.
+                    requested_on:
+                      description: Invocation initiaion timestamp
+                      type: string
+                      format: datetime
+                      example: 2022-10-04 17:51:46.815566+00:00
+                    started_on:
+                      description: Invocation starting (image labeling) timestamp
+                      type: string
+                      format: datetime
+                      example: 2022-10-04 18:54:15.074922+00:00
+                    completed_on:
+                      description: Invocation complettion (image labeling) timestamp
+                      type: string
+                      format: datetime
+                      example: 2022-10-04 18:54:15.589035+00:00
+                    labels:
+                      type: array
+                    callback_url:
+                      description: The callback_url if provided in the request
+                      type: string
+                      format: url
+                      example: https://webhook.site/41d5eaf6-3213-4dfe-863d-0f3436dc461c
+              examples:
+                Accepted:
+                  value:
+                   Customer:
+                    address: 123 Main St
+                    created_on: Sat, 03 Dec 2022 18:30:56 GMT
+                    customer_id: f010e481-9111-486f-9663-f5ea97ec0fe4
+                    email: new@gmail.com
+                    first_name: Johb
+                    last_name: Smith
+                    phone_number: '12345678910'
+                    updated_on: Sat, 03 Dec 2022 21:55:42 GMT
+
+        "404":
+          $ref: '#'
+        
+        "500":
+          $ref: '#/components/responses/500InternalServerError'
+
+components:
+  responses:
+    500InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Error response object
+            properties:
+              message:
+                type: string
+                description: Error message.
+          example:
+            message: 'Internal Server Error'
+    400BadRequest:
+      description: Invalid request body
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Error response object
+            properties:
+              error:
+                type: object
+                description: Error details.
+              message:
+                type: string
+                description: Error message.
+          example:
+            error:
+              details:
+                missing_field:
+                  - Missing data for required field.
+              message: Invalid request body
+    404NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Error response object
+            properties:
+              message:
+                type: string
+                description: Error message.
+          example:
+            message: 'Customer with id: ''xx'' was not found.'
