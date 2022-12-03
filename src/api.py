@@ -4,21 +4,20 @@ from http import HTTPStatus
 from uuid import uuid4
 
 from flask import jsonify, request
-from flask_cors import CORS
 from marshmallow import ValidationError
-from helpers import generate_customer_data
-from app import app
-from db_config import mysql
-from schemas import CreateOrUpdateCustomer
 
-CORS(app)
-create_or_update_customer_schema = CreateOrUpdateCustomer()
+from app import app
+from helpers.db_config import mysql
+from helpers.schemas import CreateCustomer, UpdateCustomer
+from helpers.utils import generate_customer_data
+
+create_customer_schema = CreateCustomer()
+update_customer_schema = UpdateCustomer()
 
 
 @app.before_first_request
 def create_table():
     try:
-        # create customer table
         cursor = mysql.connection.cursor()
         cursor.execute(
             f"""
@@ -35,7 +34,7 @@ def create_table():
                 `CustomerEmail` VARCHAR(50) NOT NULL,
                 `CustomerPhone` VARCHAR(11) NOT NULL,
                 `CustomerAddress` VARCHAR(255) NOT NULL,
-                `CreatedOn` DATETIME DEFAULT CURRENT_TIMESTAMP,
+                `CreatedOn` DATETIME NOT NULL,
                 `UpdatedOn` DATETIME NULL,
                 PRIMARY KEY (`Customer_Id`)
                 );
@@ -66,7 +65,7 @@ def customer():
         data = request.get_json() or {}
         try:
             # 1st Validation on body request
-            clear_data = create_or_update_customer_schema.load(data)
+            clear_data = create_customer_schema.load(data)
         except ValidationError as e:
             response_body = {
                 "error": {
@@ -158,7 +157,7 @@ def customer():
                     return response
 
                 cursor.close()
-                response = jsonify(create_or_update_customer_schema.dump(clear_data))
+                response = jsonify(create_customer_schema.dump(clear_data))
                 response.status_code = HTTPStatus.CREATED
                 return response
 
@@ -231,9 +230,120 @@ def a_customer(customer_id):
     """Handles request to /customer/<customer_id>
     Get, Update or Delete a customer"""
     if request.method.upper() == "PUT":
+        data = request.get_json() or {}
+        try:
+            # 1st Validation on body request
+            clear_data = update_customer_schema.load(data)
+        except ValidationError as e:
+            response_body = {
+                "error": {
+                    "message": "Invalid request body",
+                    "details": e.normalized_messages(),
+                }
+            }
+
+            response = jsonify(response_body)
+            response.status_code = HTTPStatus.BAD_REQUEST
+            return response
         try:
             cursor = mysql.connection.cursor()
-            pass
+            cursor.execute(
+                f"""SELECT * FROM Car_Hire_Management_System.Customer WHERE Customer_Id = '{customer_id}';"""
+            )
+
+            results = cursor.fetchall()
+            if results:
+
+                updated_on = datetime.utcnow()
+                clear_data.update(updated_on=updated_on)
+
+                # GET the values to update the BD
+                FirstName = clear_data.get("first_name")
+                LastName = clear_data.get("last_name")
+                CustomerEmail = clear_data.get("email")
+                CustomerPhone = clear_data.get("phone_number")
+                CustomerAddress = clear_data.get("address")
+
+                if CustomerEmail:  # avoid updating email to an existing one
+                    try:
+                        cursor = mysql.connection.cursor()
+                        cursor.execute(
+                            f"""SELECT Customer_Id FROM Car_Hire_Management_System.Customer WHERE CustomerEmail = '{CustomerEmail}';"""
+                        )
+
+                        results = cursor.fetchall()
+                        if results:  # ALREADY EXISTS
+                            cursor.close()
+                            existing_customer_id = results[0]
+                            response_body = {
+                                "error": {
+                                    "message": "Invalid request body",
+                                    "details": f"This email is already associated with a customer_id: {existing_customer_id[0]}",
+                                }
+                            }
+                            response = jsonify(response_body)
+                            response.status_code = HTTPStatus.UNPROCESSABLE_ENTITY
+                            return response
+
+                    except Exception as e:
+                        cursor.close()
+                        response_body = {
+                            "error": {
+                                "message": "Internal Server Error",
+                                "details": {
+                                    "exception_type": type(e).__name__,
+                                    "traceback": traceback.format_exc(),
+                                },
+                            }
+                        }
+
+                        response = jsonify(response_body)
+                        response.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
+                        return response
+
+                # CONSTRUCT QUERY
+                BASE_UPDATE_QUERY = "UPDATE Car_Hire_Management_System.Customer SET"
+                WHERE_CLAUSE = f" WHERE Customer_Id = '{customer_id}';"
+
+                if FirstName:
+                    BASE_UPDATE_QUERY += f""" FirstName = '{FirstName}',"""
+                if LastName:
+                    BASE_UPDATE_QUERY += f""" LastName = '{LastName}',"""
+                if CustomerEmail:
+                    BASE_UPDATE_QUERY += f""" CustomerEmail = '{CustomerEmail}',"""
+                if CustomerPhone:
+                    BASE_UPDATE_QUERY += f""" CustomerPhone = '{CustomerPhone}',"""
+                if CustomerAddress:
+                    BASE_UPDATE_QUERY += f""" CustomerAddress = '{CustomerAddress}',"""
+
+                BASE_UPDATE_QUERY += f""" UpdatedOn = '{updated_on}'"""
+
+                FINAL_UPDATE_QUERY = BASE_UPDATE_QUERY + WHERE_CLAUSE
+
+                cursor = mysql.connection.cursor()
+                cursor.execute(FINAL_UPDATE_QUERY)
+                mysql.connection.commit()
+
+                # RETURN UPDATED DATA
+                cursor.execute(
+                    f"""SELECT * FROM Car_Hire_Management_System.Customer WHERE Customer_Id = '{customer_id}';"""
+                )
+                results = cursor.fetchall()
+                cursor.close()
+                print("results:", results)
+                response_body = {"Customer": generate_customer_data(results[0])}
+
+                response = jsonify(response_body)
+                response.status_code = HTTPStatus.ACCEPTED
+                return response
+            else:
+                cursor.close()
+                response_body = {
+                    "message": f"Customer with id: '{customer_id}' was not found.",
+                }
+                response = jsonify(response_body)
+                response.status_code = HTTPStatus.NOT_FOUND
+                return response
 
         except Exception as e:
             cursor.close()
@@ -259,7 +369,6 @@ def a_customer(customer_id):
 
             results = cursor.fetchall()
             if results:
-
                 cursor.close()
                 response_body = {"Customer": generate_customer_data(results[0])}
 
