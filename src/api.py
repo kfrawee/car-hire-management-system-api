@@ -37,8 +37,8 @@ def create_table():
                 `CustomerEmail` VARCHAR(50) NOT NULL,
                 `CustomerPhone` VARCHAR(11) NOT NULL,
                 `CustomerAddress` VARCHAR(255) NOT NULL,
-                `CreatedOn` DATETIME NOT NULL,
-                `UpdatedOn` DATETIME NULL,
+                `CreatedOn` DATETIME DEFAULT NOW() NOT NULL,
+                `UpdatedOn` DATETIME DEFAULT NULL,
                 PRIMARY KEY (`Customer_Id`)
                 );
         """
