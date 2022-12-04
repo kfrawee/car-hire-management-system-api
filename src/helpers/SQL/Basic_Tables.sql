@@ -61,3 +61,4 @@ CREATE TABLE IF NOT EXISTS `Car_Hire_Management_System`.`Email`(
 	`EmailBody` varchar(300) NOT NULL, 
 	`CreatedOn` datetime DEFAULT NOW(), 
 	PRIMARY KEY (Email_Id));
+	PRIMARY KEY (Email_Id));
