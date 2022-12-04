@@ -34,11 +34,14 @@ CREATE TABLE `Car_Hire_Management_System`.`Booking` (
   `Booking_Id` INT NOT NULL AUTO_INCREMENT,
   `Customer_Id ` INT,
   `Vehicle_Id` INT,
+  `State` INT NOT NULL DEFAULT 0 CHECK (State IN (0, 1)), 
   `BookingDate` DATETIME DEFAULT NOW(),
   `HireDate` DATETIME DEFAULT NOW(),
   `ReturnDate` DATETIME,
   PRIMARY KEY (`Booking_Id`),
-  FOREIGN KEY (`Customer_Id `) REFERENCES `Customer`(`Customer_Id`)
+  FOREIGN KEY (`Customer_Id `) REFERENCES `Customer`(`Customer_Id`),
+  FOREIGN KEY (`Vehicle_Id`) REFERENCES `Vehicle`(`Vehicle_Id`)
+
 );
 
 CREATE TABLE `Car_Hire_Management_System`.`Invoice` (
@@ -47,9 +50,14 @@ CREATE TABLE `Car_Hire_Management_System`.`Invoice` (
   `Booking_Id` INT,
   `Amount` FLOAT,
   `CreatedOn` DATETIME DEFAULT NOW(),
-  `HireDate` DATETIME,
-  `RerunDate` DATETIME,
   PRIMARY KEY (`Invoice_Id`),
-  FOREIGN KEY (`Customer_Id`) REFERENCES `Customer`(`Customer_Id`)
+  FOREIGN KEY (`Customer_Id`) REFERENCES `Customer`(`Customer_Id`),
+  FOREIGN KEY (`Booking_Id`) REFERENCES `Booking`(`Booking_Id`),
 );
 
+CREATE TABLE IF NOT EXISTS `Car_Hire_Management_System`.`Email`(
+  `Email_Id` int AUTO_INCREMENT NOT NULL,
+	`CustomerEmail` varchar(25) NOT NULL,
+	`EmailBody` varchar(300) NOT NULL, 
+	`CreatedOn` datetime DEFAULT NOW(), 
+	PRIMARY KEY (Email_Id));

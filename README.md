@@ -8,7 +8,7 @@ Car Hire Management System API. A Python microservice implemented using Flask mi
 
 <br>
 <p align="center">
-<img src="requirements/images/ERD/ERD.png" title="Entity Relationship Diagram (ERD)" alt="Entity Relationship Diagram (ERD)" width=100%><br>
+<img src="requirements/images/ERD/Car Hire Management System - ERD.PNG" title="Entity Relationship Diagram (ERD)" alt="Entity Relationship Diagram (ERD)" width=100%><br>
 <b>Entity Relationship Diagram (ERD)</b>
 </p>
 
