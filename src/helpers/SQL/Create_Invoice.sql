@@ -8,4 +8,3 @@ CREATE TABLE `Car_Hire_Management_System`.`Invoice` (
   FOREIGN KEY (`Customer_Id`) REFERENCES `Customer`(`Customer_Id`),
   FOREIGN KEY (`Booking_Id`) REFERENCES `Booking`(`Booking_Id`),
 );
-
